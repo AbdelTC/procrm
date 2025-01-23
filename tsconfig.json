@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                        // Modernes JavaScript-Target
+    "module": "ESNext",                        // Module verwenden
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],  // Unterstützung für DOM und neueste JavaScript-Funktionen
+    "jsx": "react-jsx",                        // Für React mit JSX
+    "moduleResolution": "node",                // Modulauflösung
+    "strict": true,                            // Strikte Typüberprüfung
+    "esModuleInterop": true,                   // Interoperabilität mit CommonJS-Modulen
+    "skipLibCheck": true,                      // Bibliotheken nicht prüfen
+    "forceConsistentCasingInFileNames": true,  // Konsistente Dateinamen beachten
+    "resolveJsonModule": true                  // JSON-Module importieren
+  },
+  "include": ["src"],                          // Nur Dateien im `src`-Ordner verwenden
+  "exclude": ["node_modules", "dist"]          // Ordner ausschließen
+}
+

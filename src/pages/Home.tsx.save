@@ -1,0 +1,87 @@
+import React, { useState, useEffect } from 'react';
+import JobList from '../components/JobList';
+import JobForm from '../components/JobForm';
+
+type Job = {
+  id: number;
+  title: string;
+  location: string;
+  company: string;
+};
+
+const Home: React.FC = () => {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+
+  useEffect(() => {
+    fetch('http://192.168.178.82:5000/api/jobs')
+      .then((res) => res.json())
+      .then((data) => setJobs(data))
+      .catch((err) => console.error('Fehler beim Abrufen der Daten:', err));
+  }, []);
+
+const addJob = (job: { title: string; location: string; company: string }) => {
+    fetch('http://192.168.178.82:5000/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(job),
+    })
+      .then((res) => res.json())
+      .then((newJob) => setJobs((prev) => [...prev, newJob]));
+  };
+
+const editJob = (job: Job) => {
+    fetch(`http://192.168.178.82:5000/api/jobs/${job.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+         title: job.title,
+         location: job.location,
+         company: job.company,
+      }),
+    })
+      .then((res) => {
+      if (!res.ok) {
+        return res.json().then((error) => {
+          throw new Error(error.error || `HTTP-Fehler: ${res.status}`);
+        });
+      }
+      return res.json();
+    })
+      .then((updatedJob) => {
+        setJobs((prev) =>
+          prev.map((j) => (j.id === updatedJob.id ? updatedJob : j))
+        );
+        setEditingJob(null);
+      });
+      .catch((err) => console.error('Fehler beim Bearbeiten des Jobs:', err.message));
+  };
+
+  const deleteJob = (id: number) => {
+  fetch(`http://192.168.178.82:5000/api/jobs/${id}`, {
+    method: 'DELETE',
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP-Fehler: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(() => {
+      setJobs((prev) => prev.filter((job) => job.id !== id)); // Eintrag aus der Liste entfernen
+    })
+    .catch((err) => console.error('Fehler beim Löschen des Jobs:', err.message));
+};
+
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold">Jobanzeigen</h2>
+      <JobForm onSubmit={editingJob ? editJob : addJob} initialData={editingJob || undefined} />
+      <JobList jobs={jobs} onEdit={setEditingJob} onDelete={deleteJob} />
+    </div>
+  );
+};
+
+export default Home;
+
